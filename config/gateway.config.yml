@@ -1,0 +1,49 @@
+http:
+  port: 8080
+
+apiEndpoints:
+  world:
+    path: '*/world*'
+  multi:
+    paths: 
+      - '/book*'
+      - '/tech*'
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/apiEndpoints
+
+serviceEndpoints:            
+  world:                      
+    url: "https://gateway-service1-world.herokuapp.com"
+  multi:                      
+    urls: 
+      - "https://gateway-service2-books.herokuapp.com"
+      - "https://gateway-service3-technology.herokuapp.com"
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/serviceEndpoints
+
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+
+pipelines:
+  world-pipeline:
+    apiEndpoints:
+    - world
+    policies:
+    - proxy:
+      - action:
+          serviceEndpoint: world
+          changeOrigin: true
+  multi-pipeline:
+    apiEndpoints:
+    - multi
+    policies:
+    - proxy:
+      - action:
+          serviceEndpoint: multi
+          changeOrigin: true
+
